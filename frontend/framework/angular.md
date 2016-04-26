@@ -80,7 +80,7 @@ static/portal/modules/core
     │   └── wm-bootstrap-tpls.js
     ├── services
     │   ├── authService.coffee
-    │   ├── ...    
+    │   ├── ...
     │   └── validateService.coffee
     ├── styles
     │   ├── components
@@ -183,7 +183,7 @@ Factory | lowerCamelCase | canvasService | others
 * 不要使用全局变量或函数。通过依赖注入解决所有依赖，这可以减少 bug ，规避很多测试时的麻烦。
 * 为避免使用全局变量或函数，可以借助 Grunt 或 Gulp 把你的代码放到一个立即执行的函数表达式（IIFE）中。可用的插件有 [grunt-wrap](https://www.npmjs.com/package/grunt-wrap) 或 [gulp-wrap](https://www.npmjs.com/package/gulp-wrap/)。下面是 Gulp 的示例：
 
-```Javascript
+```javascript
 gulp.src("./src/*.js")
     .pipe(wrap('(function(){\n"use strict";\n<%= contents %>\n})();'))
     .pipe(gulp.dest("./dist"));
@@ -198,12 +198,10 @@ gulp.src("./src/*.js")
 * 不要使用 `$` 前缀来命名变量, 属性和方法. 这种前缀是预留给 AngularJS 来使用的.
 * 当使用 DI 机制来解决依赖关系, 要根据他们的类型进行排序 -  AngularJS 内建的依赖要优先, 之后才是你自定义的：
 
-```javascript
-module.factory('Service', function ($rootScope, $timeout, MyCustomDependency1, MyCustomDependency2) {
-  return {
-    //Something
-  };
-});
+```coffee
+module.factory('Service', ($rootScope, $timeout, MyCustomDependency1, MyCustomDependency2) ->
+  return # Something
+)
 ```
 
 # 模块
@@ -234,7 +232,7 @@ module.factory('Service', function ($rootScope, $timeout, MyCustomDependency1, M
 
 所有的控制器遵循统一的书写模板，示例如下：
 
-```coffeescript
+```coffee
 define [
   'wm/app'
   'wm/config'
@@ -324,7 +322,7 @@ define [
       _getList(vm.curTab)
 
     # 视图模型赋值部分
-    vm = this    
+    vm = this
 
 　　　 # 视图模型绑定方法定义部分
     vm.clickHandler = ->
@@ -372,13 +370,13 @@ define [
 
 * 使用 `controller as` 语法:
 
-  ```
+  ```html
   <div ng-controller="wm.ctrl.analytic.wechat.followersGrowth as followersGrowth">
      {{ followersGrowth.title }}
   </div>
   ```
 
-  ```coffeescript
+  ```coffee
   FollowersGrowthCtrl = (restService, $modal) ->
       ...
       vm = this
@@ -404,7 +402,7 @@ define [
    想深入了解 `controller as` ，请看: [digging-into-angulars-controller-as-syntax](http://toddmotto.com/digging-into-angulars-controller-as-syntax/)
 * 如果使用数组定义语法声明控制器，使用控制器依赖的原名。这将提高代码的可读性：
 
-  ```coffeescript
+  ```coffee
   GraphicsCtrl = (m, r) ->
     ...
     vm = this
@@ -420,7 +418,7 @@ define [
 
    下面的代码更易理解
 
-  ```coffeescript
+  ```coffee
   GraphicsCtrl = ($modal, restService) ->
     ...
     vm = this
@@ -440,7 +438,7 @@ define [
 * 不要在控制器中写业务逻辑。把业务逻辑交给模型层的服务。
   举个例子:
 
-  ```coffeescript
+  ```coffee
   // 这是把业务逻辑放在控制器的常见做法
   OrderCtrl = ->
     ...
@@ -469,7 +467,7 @@ define [
 
   当你把业务逻辑交给模型层的服务，控制器看起来就会想这样：（关于 service-model 的实现，参看 'use services as your Model'）:
 
-    ```coffeescript
+  ```coffee
   // Order 在此作为一个 'model'
   OrderCtrl = (Order) ->
     ...
@@ -505,19 +503,19 @@ define [
 
    Example:
 
-   ```coffeescript
+   ```coffee
    // app.coffee
    #　Custom events:
    #　  - 'authorization-message' - description of the message
    #    - { user, role, action } - data format
    #      - user - a string, which contains the username
    #      - role - an ID of the role the user has
-   #      - action - specific ation the user tries to perform   
+   #      - action - specific ation the user tries to perform
    ```
 
 * 在需要格式化数据时将格式化逻辑封装成 [过滤器](#过滤器) 并将其声明为依赖：
 
-   ```coffeescript
+   ```coffee
    myFormatFilter = ->
      () ->
        # ...
@@ -532,7 +530,7 @@ define [
 * 有内嵌的控制器时使用 "内嵌作用域" ( `controllerAs` 语法)：
 
    **contentCtrl.coffee**
-   ```coffeecript
+   ```coffee
    define [
     'wm/app'
     'wm/config'
@@ -549,19 +547,27 @@ define [
     ]
    ```
    **enterpriseCtrl.coffee**
-   ```javascript
-   function EnterpriseCtrl() {
-     this.bindingValue = 42;
-   }
+   ```coffee
+   EnterpriseCtrl = ->
+     ...
+     vm = this
+     vm.bindingValue = 42
+     ...
+     vm
+
+   app.registerController 'wm.ctrl.module.enterprise', [
+     EnterpriseCtrl
+   ]
    ```
+
    **enterprise.html**
-   ```
-   <div ng-controller="wm.ctrl.management.enterprise as enterprise">
+   ```html
+   <div ng-controller="wm.ctrl.module.enterprise as enterprise">
      <h1 ng-bind="enterprise.bindingValue"></h1>
    </div>
    ```
 
---------TODO below----------
+--------TODO: add project specific notes below----------
 
 # 指令
 
@@ -588,108 +594,73 @@ define [
 这个部分包含了 AngularJS 服务组件的相关信息。下面提到的东西与定义服务的具体方式（`.provider`, `.factory`, `.service` 等）无关，除非有特别提到。
 
 * 用驼峰法命名服务。
-  * 用首字母大写的驼峰法命名你自己的服务, 把服务写成构造函数的形式，例如：
+  * 用首字母小写的驼峰法命名单例的服务, 如果是公共的服务，必须以`Service`结尾，例如：
 
-    ```JavaScript
-    function MainCtrl($scope, User) {
-      $scope.user = new User('foo', 42);
-    }
+    ```coffee
+    PageCtrl = (utilService) ->
+      ...
+      utilService.render()
+      ...
 
-    module.controller('MainCtrl', MainCtrl);
+    app.registerController('wm.ctrl.module.page', [
+      'utilService'
+      PageCtrl
+    ])
 
-    function User(name, age) {
-      this.name = name;
-      this.age = age;
-    }
-
-    module.factory('User', function () {
-      return User;
-    });
+    # Common Service
+    mod.factory('utilService', ->
+      util =
+        render: ->
+          # render logic
+          return
+    )
     ```
 
-  * 用首字母小写的驼峰法命名其它所有的服务。
+  * 用首字母大写的驼峰法命名其它所有的需要实例化的业务逻辑服务。
 
-* 把业务逻辑封装到服务中，把业务逻辑抽象为服务作为你的 `model`。例如：
-  ```Javascript
-  //Order is the 'model'
-  angular.module('Store')
-  .factory('Order', function () {
-      var add = function (item) {
-        this.items.push (item);
-      };
+* 把业务逻辑封装到单例工厂服务中，把业务逻辑抽象为服务作为你的 `model`。例如：
+  ```coffee
+  # order is the 'model'
+  app.registerFactory('order', ->
+      order =
+        items: []
 
-      var remove = function (item) {
-        if (this.items.indexOf(item) > -1) {
-          this.items.splice(this.items.indexOf(item), 1);
-        }
-      };
+      order.add = (item) ->
+        @items.push (item)
 
-      var total = function () {
-        return this.items.reduce(function (memo, item) {
-          return memo + (item.qty * item.price);
-        }, 0);
-      };
+      order.remove = (item) ->
+        if @items.indexOf(item) > -1
+          @items.splice(@items.indexOf(item), 1)
 
-      return {
-        items: [],
-        addToOrder: add,
-        removeFromOrder: remove,
-        totalPrice: total
-      };
-  });
+      order.total = ->
+        @items.reduce((memo, item) ->
+          memo + (item.qty * item.price);
+        , 0)
+
+      order
+  )
   ```
 
-  如果需要例子展现如何在控制器中使用服务，请参考 'Avoid writing business logic inside controllers'。
-* 将业务逻辑封装成 `service` 而非 `factory`，这样我们可以更容易在服务间实现“经典式”继承：
+  如果需要例子展现如何在控制器中使用服务，请参考 '不要在控制器中写业务逻辑'。
+* 将业务逻辑封装成 `service` 而非 `factory`，service仅适用于需要实例化的`model`，这样我们可以更容易在服务间实现“经典式”继承：
 
-	```JavaScript
-	function Human() {
-	  //body
-	}
-	Human.prototype.talk = function () {
-	  return "I'm talking";
-	};
+	```coffee
+  class Human
+    constructor: (@name) ->
 
-	function Developer() {
-	  //body
-	}
-	Developer.prototype = Object.create(Human.prototype);
-	Developer.prototype.code = function () {
-	  return "I'm coding";
-	};
+    talk: (meters) ->
+      "I'm talking"
 
-	myModule.service('human', Human);
-	myModule.service('developer', Developer);
+  class Developer extends Human
+    code: ->
+      "I'm coding"
+
+	app.registerService('Human', Human);
+	app.registerService('Developer', Developer);
 
 	```
 
 * 使用 `$cacheFactory` 进行会话级别的缓存，缓存网络请求或复杂运算的结果。
-* 如果给定的服务需要配置，把配置相关代码放在 `config` 回调里，就像这样：
-
-	```JavaScript
-	angular.module('demo', [])
-	.config(function ($provide) {
-	  $provide.provider('sample', function () {
-	    var foo = 42;
-	    return {
-	      setFoo: function (f) {
-	        foo = f;
-	      },
-	      $get: function () {
-	        return {
-	          foo: foo
-	        };
-	      }
-	    };
-	  });
-	});
-
-	var demo = angular.module('demo');
-
-	demo.config(function (sampleProvider) {
-	  sampleProvider.setFoo(41);
-	});
-	```
 
 # 模板
 
@@ -697,19 +668,19 @@ define [
 * 避免在模板中使用复杂的表达式。
 * 当需要动态设置 <img> 的 `src` 时使用 `ng-src` 而非 `src` 中嵌套 `{{}}` 的模板。
 * 当需要动态设置<a>的 `href` 时使用 `ng-href` 而非 `href` 中嵌套 `{{ }}` 的模板。
-* 通过 `ng-style` 指令配合对象式参数和 scope 变量来动态设置元素样式，而不是将 scope 变量作为字符串通过 `{{ }}` 用于 `style` 属性。
+* 通过 `ng-style` 指令配合对象式参数和 vm 变量来动态设置元素样式，而不是将 scope 变量作为字符串通过 `{{ }}` 用于 `style` 属性。
 
-```HTML
+```html
 <script>
 ...
-$scope.divStyle = {
+vm.divStyle = {
   width: 200,
   position: 'relative'
 };
 ...
 </script>
 
-<div ng-style="divStyle">my beautifully styled div which will work in IE</div>;
+<div ng-style="ctrl.divStyle">my beautifully styled div which will work in IE</div>;
 ```
 
 # 路由
@@ -719,14 +690,14 @@ $scope.divStyle = {
 
 # 国际化
 
-* 在较新版本的 Angular（>=1.4.0）下，使用内置的 i18n 工具，在较老版本下（<1.4.0），使用 [`angular-translate`](https://github.com/angular-translate/angular-translate)。
+* 使用 [`angular-translate`](https://github.com/angular-translate/angular-translate)。
 
 # 性能
 
 * 优化 digest cycle
 
 	* 只监听必要的变量。仅在必要时显式调用 `$digest` 循环(例如：在进行实时通讯时，不要在每次接收到消息时触发 `$digest` 循环)。
-	* 对于那些只初始化一次并不再改变的内容, 使用一次性 watcher [`bindonce`](https://github.com/Pasvaz/bindonce) （对于早期的 AngularJS）。如果是 AngularJS >=1.3.0 的版本，应使用Angular内置的一次性数据绑定(One-time bindings).
+	* 对于那些只初始化一次并不再改变的内容, 使用一次性 watcher [`bindonce`](https://github.com/Pasvaz/bindonce)。
 	* 尽可能使 `$watch` 中的运算简单。在单个 `$watch` 中进行繁杂的运算将使得整个应用变慢(由于JavaScript的单线程特性，`$digest` loop 只能在单一线程进行)
 	* 当监听集合时, 如果不是必要的话不要深度监听. 最好使用 `$watchCollection`, 对监听的表达式和之前表达式的值进行浅层的检测.
 	* 当没有变量被  `$timeout` 回调函数所影响时，在 `$timeout` 设置第三个参数为 false 来跳过 `$digest` 循环.
