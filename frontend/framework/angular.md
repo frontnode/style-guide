@@ -1,6 +1,6 @@
 # 简介
 
-本风格指南的目的是展示AngularJS在OmniSocials应用的最佳实践和风格指南，语言风格指南[参考]()
+本风格指南的目的是展示[AngularJS](https://github.com/angular/angular)在OmniSocials应用的最佳实践和风格指南，Coffee语言风格指南[参考](https://github.com/frontnode/style-guide/blob/master/frontend/language/coffeescript.md)
 
 # 内容目录
 * [概览](#概览)
@@ -97,8 +97,6 @@ static/portal/modules/core
 
 * 业务模块按照业务优先的组织方式目录结构看起来如下：
 
-如下：
-
 ```
 static/portal/modules/member
     ├── config.json
@@ -141,9 +139,9 @@ static/portal/modules/my-complex-module/
 保持标签的简洁并把AngularJS的标签放在标准HTML属性后面。这样提高了代码可读性。标准HTML属性和AngularJS的属性没有混到一起，提高了代码的可维护性。
 
 ```html
-<form class="frm" ng-submit="login.authenticate()">
+<form class="form" ng-submit="login.authenticate()">
   <div>
-    <input class="ipt" type="text" placeholder="name" require ng-model="user.name">
+    <input class="input" type="text" placeholder="name" require ng-model="user.name">
   </div>
 </form>
 ```
@@ -226,9 +224,9 @@ module.factory('Service', ($rootScope, $timeout, MyCustomDependency1, MyCustomDe
 
 * `wm.core`模块通过coreLoader声明核心模块的依赖将常用的核心控制器，服务，过滤器以及指令打包成一个模块依赖(通过自定义的grunt中mergeamd任务实现)
 
-## 控制器
+# 控制器
 
-### 标准的控制器模板
+## 标准的控制器模板
 
 所有的控制器遵循统一的书写模板，示例如下：
 
@@ -346,7 +344,7 @@ define [
   ]
 ```
 
-### 一些注意点
+## 一些注意点
 
 * 控制器里面的方法不要添加`_`符号，所有的方式使用小写开头驼峰方式，控制器不存在暴露可见性的问题。
 * 不要在控制器里操作 DOM，这会让你的控制器难以测试，而且违背了[关注点分离原则](https://en.wikipedia.org/wiki/Separation_of_concerns)。应该通过指令操作 DOM。
