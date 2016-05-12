@@ -115,11 +115,22 @@ static/h5/modules/module/pages/page
 
 ## 命名约定
 
-TODO
+### 组件命名
+
+### 页面命名
+
+尽量使用单个单词对页面命名，单个单词无法表示的情况使用中划线分割
+
+### 方法命名
+
+* fetchResource 通过`vue-resource`异步获取数据的方法，通过promise返回数据结果，内部处理异常情况
+* getResource 获取缓存数据或者根据原始数据(通过fetchResource获取或者初始赋值)转化后的数据
+* toSomePage 跳转页面的`handler`函数，一般通过`v-link="toSomePage"`使用，也可以在其他的业务处理函数中调用
 
 ## 其他
 
-* 使用[Vue Resource](https://github.com/vuejs/vue-async-data)加载页面的初始数据，通过回调中的resolve函数将数据更新到视图上（resolve可以被执行多次）。
+* 使用[Vue Route Data属性](http://router.vuejs.org/en/pipeline/data.html)加载页面的初始数据，通过回调中的返回promise对象而不是使用`transition.next`来更新视图数据（如果是要并行加载多条数据，通过Promise.all实现）。
+* 所有的异步请求需要处理异步加载的状态，通过$loadingRouteData的变量来判定，控制loading图标的显示和隐藏
 * 在`main.js`中设置请求的root path，使用`$resource`方法发送请求（请求地址前面不带`/`）。
 * 开发中优先使用const，使用const修饰的字面量常量需要大写，其他初始化之后不需要再更新的值使用驼峰表示。
 * 尽量使用简写的形式使用指令，例如v-bind:href="url"统一简写成:href="url"; v-on:focus="dosomething"简写成@focus="dosomething"。
@@ -167,13 +178,11 @@ class moduleNameContorller extends Controller
 ```js
 import Vue from 'vue'
 import VueResource from 'vue-resource'
-import VueAsyncData from 'vue-async-data'
 import VueTap from 'vue-tap'
 import VueI18n from 'vue-i18n'
 import App from './pages/pay/pay.vue'
 
 Vue.use(VueResource)
-Vue.use(VueAsyncData)
 Vue.use(VueTap)
 Vue.use(VueI18n, {
   lang: 'zh_cn',
@@ -207,6 +216,9 @@ new Vue({
 * 页面的视图模型data里面的数据应该只和视图渲染相关，不要直接把获取的数据赋值到vm上，methods里面应该只放和页面交互相关的操作。
 * 在data方法中全局变量绑在this上，例如`this.query`表示查询参数，`this.pagination`表示分页参数, `this.params`表示地址path中的参数。
 * 单纯的数据映射逻辑不要写在watch里，而是写在computed里。
+* 首屏页面渲染的时候通过在`route.data`函数而不是`ready`函数中发送AJAX异步加载的数据再通过resolve更新到视图模型上。
+* 数据双向绑定同步到DOM上是在视图模型更新后异步完成的，为了保证数据驱动的DOM更新真实完成后在执行相关逻辑，可以通过[$nextTick方法实现](http://vuejs.org/guide/reactivity.html#Async-Update-Queue)。
+* 默认的计算属性是会缓存计算结果的，只有在依赖的数据变动后缓存才会失效，但是在computed属性中如果有较为复杂的处理逻辑，必须要提取出数据转换函数保证内部逻辑精简和清晰。
 
 ## 标准的页面模板(Vue文件)
 
@@ -220,18 +232,55 @@ new Vue({
 <script>
 import Component from '../../components/Component'
 
+// Global constants here
+const GLOBAL_CONSTANT = 'constant';
+
+// Utility functions for vm manipulation, vm as the first parameter
+
+function rederList(vm, data) {
+  ...
+}
+
+// Utility functions for data manipulation, no global values allowed in functions
+
+function formatData(data) {
+  ...
+}
+
 ...
 
 export default {
   data () {
     return {
+      // Only initial view model here
+      // All the reactive values tracked by vue should be defined here
       ...      
     }
   },
-  methods: {
+  computed: {
+    // Optional, only data mapping here
     ...
   },
+  watch: {
+    // Optional, only used when you need to call function for data change here
+    ...
+  },
+  route: {
+    data (transition) {
+      // Optional, only present if the page need async data for page rendering
+      // Return promise instead of use transition.next to resolve promise by yourself
+      ...
+    }        
+  },
   ready () {
+    // Used like jquery dom ready
+    ...
+  },
+  methods: {
+    // Only event callback handlers here, better use actionHandler pattern as name
+    ...
+  },
+  filters: {
     ...
   },
   components: {
@@ -276,6 +325,7 @@ export default {
 import DependedComponent from './DependedComponent'
 
 export default {
+  // Other options place before props, example: replace ...
   props: {
     description: { // description of goods
       type: String,
@@ -289,6 +339,42 @@ export default {
     ...
   },
   computed: {
+    ...
+  },
+  // Life cycle methods
+  init() {
+    ...
+  },
+  created() {
+    ...
+  },
+  beforeCompile() {
+    ...
+  },
+  compiled() {
+    ...
+  },
+  ready() {
+    ...
+  },
+  attached() {
+    ...
+  },
+  detached() {
+    ...
+  },
+  beforeDestroy() {
+    ...
+  },
+  destroyed() {
+    ...
+  },
+  // Handlers
+  methods: {
+    // Only event callback handlers here, better use actionHandler pattern as name
+    ...
+  },
+  filters: {
     ...
   },
   components: {
@@ -306,3 +392,4 @@ export default {
 # 参考
 
 * [VueJS中文官网](http://cn.vuejs.org/)
+* [Vue Router中文](http://router.vuejs.org/zh-cn/index.html)
