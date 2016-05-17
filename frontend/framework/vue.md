@@ -236,14 +236,12 @@ import Component from '../../components/Component'
 const GLOBAL_CONSTANT = 'constant';
 
 // Utility functions for vm manipulation, vm as the first parameter
-
-function rederList(vm, data) {
+const renderList = (vm, data) => {
   ...
 }
 
 // Utility functions for data manipulation, no global values allowed in functions
-
-function formatData(data) {
+const formatData = (data) => {
   ...
 }
 

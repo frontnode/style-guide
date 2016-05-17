@@ -187,7 +187,10 @@ gulp.src("./src/*.js")
     .pipe(gulp.dest("./dist"));
 ```
 
+* 优先使用angular内置的函数(angular.isString()，angular.isArray()...),可参考[angular API文档](http://docs.ngnice.com/api)
+* 使用频率多余1次的字符串或数字应定义为常量。
 * 不要污染 `$scope`。仅添加与视图相关的函数和变量。
+* 不要在页面里写空函数，如组件的change事件等，没有相应的处理逻辑就不用写
 * [使用 controllers 而非 `ngInit`](https://github.com/angular/angular.js/pull/4366/files)。`ngInit` 只有在一种情况下的使用是合适的：用来给 `ngRepeat`的特殊属性赋予一个别名。除此之外, 你应该使用 controllers 而不是 `ngInit` 来初始化scope变量。`ngInit` 中的表达式会传递给 Angular 的 `$parse` 服务，通过词法分析，语法分析，求值等过程。这会导致:
     - 对性能的巨大影响，因为解释器由 Javascript 写成
     - 多数情况下，`$parse` 服务中对表达式的缓存基本不起作用，因为 `ngInit` 表达式经常只有一次求值
