@@ -160,6 +160,8 @@ Directives | lowerCamelCase  | userInfo |
 Filters | lowerCamelCase | userFilter |
 Factory | lowerCamelCase | canvasService | others
 
+* 不要在给变量, 函数, 国际化的键等命名时使用无意义的缩写(允许的缩写请看 [词汇表](#))
+
 ## 其他
 
 * 使用：
@@ -237,8 +239,13 @@ define [
 ], (app, config) ->
   DemoController = ($stateParams, restService) ->
     # 常量定义部分
+    # 注释, `if`, `for`上方需要有一行空行
     CONSTANT =
       TITLE: 'title'
+
+    # 全局变量定义部分
+    states =
+      cache: 'info'
 
     # 页面视图模型初始化部分
     init = (vm) ->
@@ -292,6 +299,11 @@ define [
     fetchList = (vm) ->
       restService.get config.resources.demo, (data) ->
         items = data?.items
+
+        # 需要使用循环的地方统一使用`for ... in ...`, 但如果循环中存在异步操作, 那么可以使用angular.forEach
+        for item in items
+          # 渲染数据的代码
+
         if items and angular.isArrary items and items.length
           vm.list = data.items
         else
@@ -319,7 +331,7 @@ define [
       vm.currentPage = 1
       _getList(vm.curTab)
 
-    # 视图模型赋值部分
+    # 视图模型赋值部分, vm中只允许绑定跟显示有关的变量, 也就是说绑定在vm上的函数/变量必须在html中使用过至少一次.
     vm = this
 
 　　　 # 视图模型绑定方法定义部分
