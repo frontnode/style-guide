@@ -235,21 +235,35 @@ import Component from '../../components/Component'
 // Global constants here
 const GLOBAL_CONSTANT = 'constant';
 
-// Utility functions for vm manipulation, vm as the first parameter
+// Utility functions for data manipulation, no global values allowed in functions
 
-function rederList(vm, data) {
+const formatData = (data) => {
   ...
 }
 
-// Utility functions for data manipulation, no global values allowed in functions
+// Utility functions for vm manipulation, vm as the first parameter
 
-function formatData(data) {
+const rederList = (vm, data) => {
   ...
 }
 
 ...
 
 export default {
+  // Predefined global values
+  this.query = this.$route.query
+  this.params = this.$route.params
+  this.states = {}
+  this.pagination = {}
+  ...
+  
+  // Read only global values
+  this.constants = {
+    TITLE: this.$t('title')
+  }
+  
+  // NOTICE: Can not define any values that can be read and write on this directly
+  
   data () {
     return {
       // Only initial view model here
@@ -288,14 +302,6 @@ export default {
   }
 }
 </script>
-```
-
-## 标准的页面JS逻辑模板(script部分)
-
-```js
-属性的换行规则
-生命周期函数的顺序
-页面跳转，query参数加注释，query不变，直接return，加新的参数merge，减少参数直接删
 ```
 
 # 组件
@@ -388,6 +394,45 @@ export default {
 
 * 多页面复用的全局变量放在`styles/variables`文件下，组件特有的变量定义在`style`标签中，页面中特有的变量定义在页面less文件里。
 * TODO:　使用px2rem的mixin定义px的值。
+
+# 构建工具
+
+项目中使用[webpack](http://webpack.github.io/)作为构建工具，跟vue页面构建相关的的脚本放在`build/webpack`文件夹下面，文件结构如下：
+
+```
+webpack
+├── css-loaders.js
+├── dev-client.js
+├── dev-server.js
+├── html-loaders.js
+├── webpack.base.conf.js
+├── webpack.dev.conf.js
+└── webpack.prod.conf.js
+```
+
+* `css-loaders.js` 各种主流css loader在vue文件中的loader包装，用于处理vue中各种css预处理器写法
+* `dev-client.js` webpack热更新时客户端处理逻辑
+* `dev-server.js` webpack调试服务器相关配置
+* `html-loaders.js`　html-webpack-plugin插件相关配置，主要用于配置入口页面模板
+*　`webpack.base.conf.js`　webpack开发和部署环境公共的配置信息
+*　`webpack.dev.conf.js` webpack开发环境公共的配置信息
+* `webpack.prod.conf.js` webpack部署环境公共的配置信息
+
+## 启动调试服务器
+
+必须指定模块名称，仅仅针对单独模块的开发调试
+
+```
+npm run h5dev module
+```
+
+## 生成静态资源
+
+如果指定模块名称，仅仅针对单独模块的构建，如果不指定模块名称会构建h5文件夹下面所有的模块
+
+```
+npm run h5build module
+```
 
 # 参考
 
